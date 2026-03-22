@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{ user.login }} - Sub-Zero Wiki</title>
+</head>
+<body class="bg-[#f6f6f6] font-serif text-[#202122] p-4 md:p-10">
+    <div class="max-w-5xl mx-auto bg-white p-8 border border-[#a2a9b1] shadow-sm">
+        <header class="border-b border-[#a2a9b1] mb-6 pb-2">
+            <h1 class="text-4xl font-normal">{{ user.name or user.login }}</h1>
+            <div class="text-sm italic text-gray-600">From Sub-Zero, the encyclopedia for the rest of us</div>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex-1 text-lg leading-relaxed">
+                <p class="mb-4">
+                    <b>{{ user.name or user.login }}</b> is a 
+                    <span class="text-[#3366cc] underline text-sm">human-ish entity</span> known for 
+                    maintaining a GitHub profile with exactly <b>{{ user.followers }}</b> followers. 
+                </p>
+                <p class="mb-4">
+                    Based in <b>{{ user.location or "an undisclosed bunker" }}</b>, the subject has 
+                    successfully avoided global fame for several years. Experts describe their 
+                    digital footprint as "present, but not loud."
+                </p>
+                
+                <h2 class="text-2xl border-b border-[#a2a9b1] mb-2 mt-6 font-normal">Early Life</h2>
+                <p>Subject created an account and wrote: <i>"{{ user.bio or 'I have no bio because I am mysterious.' }}"</i></p>
+            </div>
+
+            <aside class="w-full md:w-72 bg-[#f8f9fa] border border-[#a2a9b1] p-2 text-sm shrink-0">
+                <div class="text-center font-bold text-lg p-2 bg-[#eaecf0] border-b border-[#a2a9b1]">
+                    {{ user.login }}
+                </div>
+                <img src="{{ user.avatar_url }}" class="w-full border-b border-[#a2a9b1]">
+                <table class="w-full mt-2 border-collapse text-left">
+                    <tr class="border-b border-gray-200">
+                        <th class="p-1 font-bold">Status</th>
+                        <td>Non-Notable</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <th class="p-1 font-bold">Clout</th>
+                        <td>{{ user.followers }} followers</td>
+                    </tr>
+                    <tr>
+                        <th class="p-1 font-bold">Employer</th>
+                        <td>{{ user.company or "Self-Unemployed" }}</td>
+                    </tr>
+                </table>
+            </aside>
+        </div>
+    </div>
+    <footer class="text-center mt-10 text-xs text-gray-500">
+        This page was generated because you aren't famous enough for the real Wikipedia.
+    </footer>
+</body>
+</html>
