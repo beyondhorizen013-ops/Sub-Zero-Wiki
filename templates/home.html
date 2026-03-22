@@ -1,0 +1,12 @@
+<h1>Sub-Zero Wiki</h1>
+<p>The community-driven encyclopedia for nobodies.</p>
+<form onsubmit="window.location.href='/wiki/' + document.getElementById('name').value; return false;">
+    <input id="name" placeholder="Search or Create User...">
+    <button>Go</button>
+</form>
+<h3>Existing Articles:</h3>
+<ul>
+    {% for article in articles %}
+    <li><a href="/wiki/{{ article }}">{{ article }}</a></li>
+    {% endfor %}
+</ul>
