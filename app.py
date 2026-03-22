@@ -1,59 +1,45 @@
-from flask import Flask, render_template, request, abort
-import requests
+from flask import Flask, render_template, request, redirect, url_for
+import json
+import os
 
 app = Flask(__name__)
 
-# This function grabs the GitHub data
-def get_github_stats(username):
-    response = requests.get(f"https://api.github.com/users/{username}")
-    if response.status_code == 200:
-        return response.json()
-    return None
+# This is our "Database" file
+DB_FILE = 'wiki_data.json'
+
+def load_data():
+    if os.path.exists(DB_FILE):
+        with open(DB_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_data(data):
+    with open(DB_FILE, 'w') as f:
+        json.dump(data, f)
 
 @app.route('/')
 def home():
-    # A simple landing page where people can type a username
-    return '''
-        <h1>Welcome to Sub-Zero Wiki</h1>
-        <p>The encyclopedia for people who aren't famous.</p>
-        <form action="/check" method="get">
-            <input type="text" name="username" placeholder="Enter GitHub Username">
-            <button type="submit">Generate Wiki</button>
-        </form>
-    '''
+    data = load_data()
+    return render_template('home.html', articles=data.keys())
 
-@app.route('/check')
-def check_notability():
-    username = request.args.get('username')
-    data = get_github_stats(username)
+@app.route('/wiki/<name>')
+def view_article(name):
+    data = load_data()
+    article = data.get(name)
+    if not article:
+        return f"<h1>Article not found</h1><p><a href='/edit/{name}'>Create this page</a></p>"
+    return render_template('wiki.html', name=name, content=article)
 
-    if not data:
-        return "<h1>404: Person too obscure even for us.</h1>", 404
-
-    # THE JOKE: If they have more than 500 followers, they are "too famous"
-    followers = data.get('followers', 0)
-    if followers > 500:
-        return f"<h1>Access Denied</h1><p>{username} has {followers} followers. That's too many. Go to the real Wikipedia, celebrity.</p>", 403
-
-    # If they pass the "non-notable" test, show them their wiki
-    return f'''
-        <div style="font-family: serif; max-width: 800px; margin: auto; border: 1px solid #ccc; padding: 20px;">
-            <h1 style="border-bottom: 1px solid #aaa;">{data.get('name') or username}</h1>
-            <p><i>From Sub-Zero, the encyclopedia for the rest of us.</i></p>
-            
-            <p><b>{data.get('name') or username}</b> is a GitHub user known for having exactly <b>{followers}</b> followers. 
-            They currently reside in <b>{data.get('location') or 'an undisclosed location'}</b>.</p>
-            
-            <h3>History</h3>
-            <p>Subject has created {data.get('public_repos')} repositories. Most of which remain unstarred by anyone other than their mother.</p>
-            
-            <div style="float: right; border: 1px solid #aaa; padding: 10px; background: #f9f9f9;">
-                <img src="{data.get('avatar_url')}" width="150"><br>
-                <b>Status:</b> Non-Notable<br>
-                <b>Clout Score:</b> Very Low
-            </div>
-        </div>
-    '''
+@app.route('/edit/<name>', methods=['GET', 'POST'])
+def edit_article(name):
+    data = load_data()
+    if request.method == 'POST':
+        data[name] = request.form['content']
+        save_data(data)
+        return redirect(url_for('view_article', name=name))
+    
+    current_content = data.get(name, "")
+    return render_template('edit.html', name=name, content=current_content)
 
 if __name__ == "__main__":
     app.run(debug=True)
